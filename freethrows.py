@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import collections 
 
-EPSILON = 0.1 
-VAL_ITERATION_EPS = 0.001
+GAMMA = 0.9
+EPSILON = 1e-50
 WIN = 10000 #reward if succeed 90/100
 FREETHROWRATE = 0.8
 
@@ -22,12 +22,18 @@ class value_iteration:
 
 	def bellman(self, state_made, state_missed, action, val_state):
 		if action == 1: 
-			return FREETHROWRATE * (rewards[state_made+1][state_missed] + GAMMA * val_state[state_made+1][state_missed]) + (1 - FREETHROWRATE) * (rewards[state_made][state_missed+1] + GAMMA * val_state[state_made][state_missed+1])
+			made_val = FREETHROWRATE * (rewards[state_made+1][state_missed] + GAMMA * val_state[state_made+1][state_missed])
+			if state_missed + 1 > 10:
+				missed_val = 0 #lose 
+			else: 
+				missed_val = (1 - FREETHROWRATE) * (rewards[state_made][state_missed+1] + GAMMA * val_state[state_made][state_missed+1])
+			return made_val + missed_val
 		else: #action == 0 
 			return val_state[0][0]
 
 	def val_iteration(self):
 		while True:
+			iteration = 0
 			delta = 0
 			for state_made in range(1,90): #go through each state
 				for state_missed in range(1, 11):
@@ -37,7 +43,10 @@ class value_iteration:
 						val_action[action] = self.bellman(state_made, state_missed, action, self.val_state)
 					self.val_state[state_made][state_missed] = np.max(val_action)
 					delta = max(delta, np.abs(self.val_state[state_made, state_missed] - v)) #find maximum change over all states
-			if delta < VAL_ITERATION_EPS:
+
+			print('iteration', iteration)
+			iteration += 1
+			if delta < EPSILON:
 				break
 		return self.policy_it()
 
@@ -56,5 +65,9 @@ class value_iteration:
 
 vi = value_iteration()
 v, p = vi.val_iteration()
-print(v)
 print(p)
+print(v)
+print(v[80])
+print(v[85])
+print(v[89])
+print(v[90])
