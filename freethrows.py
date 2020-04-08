@@ -3,30 +3,25 @@ import random
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import collections 
 
 GAMMA = 0.9
 EPSILON = 1e-50
-WIN = 10000 #reward if succeed 90/100
 FREETHROWRATE = 0.8
 
 #state is [free throws made, free throws missed]
-rewards = np.zeros((91, 11)) #rewards for each state 
+rewards = np.zeros((91, 12)) #rewards for each state 
 for i in range(11):
 	rewards[90][i] = 100 #90 = win
 
 class value_iteration:
 	def __init__(self):
 		self.policy = np.zeros((90, 11), dtype=np.float128)
-		self.val_state = np.zeros((91, 11), dtype=np.float128)
+		self.val_state = np.zeros((91, 12), dtype=np.float128)
 
 	def bellman(self, state_made, state_missed, action, val_state):
 		if action == 1: 
 			made_val = FREETHROWRATE * (rewards[state_made+1][state_missed] + GAMMA * val_state[state_made+1][state_missed])
-			if state_missed + 1 > 10:
-				missed_val = 0 #lose 
-			else: 
-				missed_val = (1 - FREETHROWRATE) * (rewards[state_made][state_missed+1] + GAMMA * val_state[state_made][state_missed+1])
+			missed_val = (1 - FREETHROWRATE) * (rewards[state_made][state_missed+1] + GAMMA * val_state[state_made][state_missed+1])
 			return made_val + missed_val
 		else: #action == 0 
 			return val_state[0][0]
@@ -35,8 +30,8 @@ class value_iteration:
 		while True:
 			iteration = 0
 			delta = 0
-			for state_made in range(1,90): #go through each state
-				for state_missed in range(1, 11):
+			for state_made in range(0,90): #go through each state
+				for state_missed in range(0, 11):
 					v = self.val_state[state_made, state_missed] 
 					val_action = np.zeros(2)
 					for action in range(2): #reset = 0, shoot = 1
@@ -51,8 +46,8 @@ class value_iteration:
 		return self.policy_it()
 
 	def policy_it(self):
-		for state_made in range(1,90): #go through each state
-			for state_missed in range(1, 11):
+		for state_made in range(0,90): #go through each state
+			for state_missed in range(0, 11):
 				val_action = np.zeros(2)
 				for action in range(2):
 					val_action[action] = self.bellman(state_made, state_missed, action, self.val_state)
@@ -71,3 +66,4 @@ print(v[80])
 print(v[85])
 print(v[89])
 print(v[90])
+print(v[10])
