@@ -4,9 +4,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-GAMMA = 0.9
-EPSILON = 1e-50
-FREETHROWRATE = 0.8
+GAMMA = 0.99
+EPSILON = .01
+FREETHROWRATE = 0.80
 
 #state is [free throws made, free throws missed]
 rewards = np.zeros((91, 12)) #rewards for each state 
@@ -27,17 +27,18 @@ class value_iteration:
 			return val_state[0][0]
 
 	def val_iteration(self):
+		iteration = 0
 		while True:
-			iteration = 0
 			delta = 0
 			for state_made in range(0,90): #go through each state
 				for state_missed in range(0, 11):
-					v = self.val_state[state_made, state_missed] 
+					v = self.val_state[state_made][state_missed] 
 					val_action = np.zeros(2)
 					for action in range(2): #reset = 0, shoot = 1
 						val_action[action] = self.bellman(state_made, state_missed, action, self.val_state)
 					self.val_state[state_made][state_missed] = np.max(val_action)
-					delta = max(delta, np.abs(self.val_state[state_made, state_missed] - v)) #find maximum change over all states
+					delta = max(delta, np.abs(self.val_state[state_made][state_missed] - v)) #find maximum change over all states
+					#print(delta)
 
 			print('iteration', iteration)
 			iteration += 1
@@ -51,7 +52,11 @@ class value_iteration:
 				val_action = np.zeros(2)
 				for action in range(2):
 					val_action[action] = self.bellman(state_made, state_missed, action, self.val_state)
-				best_action = np.argmax(val_action)
+				if val_action[0] > val_action[1]:# + 10e-10: 
+					best_action = 0
+				else:
+					best_action = 1
+				#best_action = np.argmax(val_action)
 				self.policy[state_made][state_missed] = best_action
 		return self.val_state, self.policy
 
@@ -60,10 +65,26 @@ class value_iteration:
 
 vi = value_iteration()
 v, p = vi.val_iteration()
-print(p)
-print(v)
-print(v[80])
-print(v[85])
-print(v[89])
-print(v[90])
-print(v[10])
+# print(p)
+# print(v)
+# print(v[80])
+# print(v[85])
+# print(v[89])
+# print(v[90])
+# print(v[10])
+
+
+fig, ax = plt.subplots()
+im = ax.imshow(p, origin = 'lower', aspect = 'auto')
+ax.set_xticks(np.arange(0,11))
+ax.set_yticks(np.arange(0,90))
+plt.xlabel('Shots missed')
+plt.ylabel('Shots made')
+#plt.grid(color='black', linestyle='-', linewidth=1)
+for i in range(0,11):
+	for j in range(0,90):
+			text = ax.text(i, j, str(round(v[j][i],2)), ha="center", va="center", fontsize=6)
+ax.set_xticklabels(np.arange(0,11))
+ax.set_yticklabels(np.arange(0,90))
+
+plt.show()
