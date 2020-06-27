@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 GAMMA = .99
-EPSILON = .001
+EPSILON = .00001
 FREETHROWRATE = 0.78
 
 #state is [free throws made, free throws missed]
@@ -87,16 +87,16 @@ plt.xlabel('Shots missed')
 plt.ylabel('Shots made')
 plt.title(f'Freethrow strategy with GAMMA = {GAMMA} and p_make = {FREETHROWRATE}')
 plt.grid(color='black', linestyle='-', linewidth=1)
-for i in range(0,11):
-	for j in range(0,90):
-		text = ax.text(i, j, str(round(v[j][i],2)), ha="center", va="center", fontsize=5)
+# for i in range(0,11):
+# 	for j in range(0,90):
+# 		text = ax.text(i, j, str(round(v[j][i],2)), ha="center", va="center", fontsize=5)
 
-# for i in range(1, 11):
-# 	for j in range(0, 90):
-# 		if v[j][i] > v[0][0]:
-# 			text = ax.text(i, j+1, j, ha='center', va='center', fontsize=10)
-# 			#text = ax.text(i, j, str(round(v[j][i],2)), ha="center", va="center", fontsize=6)
-# 			break
+for i in range(1, 11):
+	for j in range(0, 90):
+		if v[j][i] > v[0][0]:
+			text = ax.text(i, j+1, j, ha='center', va='center', fontsize=10)
+			#text = ax.text(i, j, str(round(v[j][i],2)), ha="center", va="center", fontsize=6)
+			break
 
 import matplotlib.ticker as ticker
 # plt.rc('xtick', labelsize=6)    # fontsize of the tick labels
